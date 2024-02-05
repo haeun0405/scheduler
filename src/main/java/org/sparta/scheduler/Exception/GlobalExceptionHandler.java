@@ -1,4 +1,4 @@
-package org.sparta.scheduler;
+package org.sparta.scheduler.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

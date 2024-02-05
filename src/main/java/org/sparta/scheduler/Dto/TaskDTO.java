@@ -1,8 +1,9 @@
-package org.sparta.scheduler;
+package org.sparta.scheduler.Dto;
 
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sparta.scheduler.Domain.Task;
 
 import java.time.LocalDateTime;
 

@@ -1,5 +1,10 @@
-package org.sparta.scheduler;
+package org.sparta.scheduler.Controller;
 
+import org.sparta.scheduler.Dto.TaskDTO;
+import org.sparta.scheduler.Dto.TaskResponseDTO;
+import org.sparta.scheduler.Dto.TaskUpdateRequestDTO;
+import org.sparta.scheduler.Domain.Task;
+import org.sparta.scheduler.Service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,7 @@
-package org.sparta.scheduler;
+package org.sparta.scheduler.Service;
 
+import org.sparta.scheduler.Repository.TaskRepository;
+import org.sparta.scheduler.Domain.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
