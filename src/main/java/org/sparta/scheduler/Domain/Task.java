@@ -26,20 +26,27 @@ public class Task {
     @Column(nullable = false)
     private String assignee;
 
-    @Column(nullable = false)
-    private String password;
 
     @Column(nullable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private Boolean completed = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
     public Task() {
 
     }
 
-    public Task(TaskDTO taskDTO) {
+    public Task(TaskDTO taskDTO, User user) {
         this.title = taskDTO.getTitle();
         this.contents = taskDTO.getContents();
         this.assignee = taskDTO.getAssignee();
+        this.user = user;
     }
 
 }

@@ -16,6 +16,7 @@ public class TaskResponseDTO {
     private String contents;
     private String assignee;
     private LocalDateTime createdDate;
+    private Boolean completed;
 
     // 생성자
     public TaskResponseDTO() {
@@ -25,8 +26,9 @@ public class TaskResponseDTO {
         this.id = task.getId();
         this.title = task.getTitle();
         this.contents = task.getContents();
-        this.assignee = task.getAssignee();
+        this.assignee = task.getAssignee(); //할일 엔티티에서 작성자 정보를 가져옴
         this.createdDate = task.getCreatedDate();
+        this.completed = task.getCompleted();
     }
 
     public Task toEntity() {
