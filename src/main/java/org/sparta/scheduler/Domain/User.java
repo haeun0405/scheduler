@@ -3,10 +3,12 @@ package org.sparta.scheduler.Domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
 @Getter
+@Setter
 @NoArgsConstructor
 public class User {
 
@@ -24,5 +26,4 @@ public class User {
         this.username = username;
         this.password = password;
     }
-
 }
