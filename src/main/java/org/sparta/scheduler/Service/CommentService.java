@@ -1,5 +1,8 @@
 package org.sparta.scheduler.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sparta.scheduler.Domain.Comment;
 import org.sparta.scheduler.Domain.Task;
 import org.sparta.scheduler.Domain.User;
@@ -9,13 +12,16 @@ import org.sparta.scheduler.Repository.TaskRepository;
 import org.sparta.scheduler.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 @Service
 public class CommentService {
+    private static final Logger logger = LoggerFactory.getLogger(Comment.class);
 
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
@@ -62,13 +68,28 @@ public class CommentService {
     }
 
     // 댓글 삭제 메소드
-    public void deleteComment(Long commentId, String username) {
-        Comment comment = commentRepository.findById(commentId)
+    @PreAuthorize("#username == authentication.principal.username")
+    public void deleteComment(Long commentId, String username) throws AccessDeniedException {
+        Comment comment = commentRepository.findByIdWithUser(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        logger.info("Deleting comment: {}, User: {}, Task: {}", comment.getId(), comment.getUser().getUsername(), comment.getTask().getId());
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have permission to delete this comment");
+        }
+
+
+
+//        // Comment 객체에 연결된 User가 null인지 확인
+//        if (comment.getUser() == null) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This comment does not have an associated user.");
+//        }
+
+        // 현재 요청한 사용자가 댓글을 작성한 사용자와 동일한지 확인
         if (!comment.getUser().getUsername().equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this comment");
         }

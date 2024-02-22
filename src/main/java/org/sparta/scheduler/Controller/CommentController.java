@@ -9,6 +9,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+
 @RestController
 @RequestMapping("/api/tasks/{taskId}/comments")
 public class CommentController {
@@ -44,7 +46,7 @@ public class CommentController {
 
     // 댓글 삭제 엔드포인트
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long taskId, @PathVariable Long commentId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> deleteComment(@PathVariable Long taskId, @PathVariable Long commentId, @AuthenticationPrincipal UserDetails userDetails) throws AccessDeniedException {
         commentService.deleteComment(commentId, userDetails.getUsername());
         return ResponseEntity.ok().build(); // 삭제 성공 메시지 및 상태 코드 반환
     }

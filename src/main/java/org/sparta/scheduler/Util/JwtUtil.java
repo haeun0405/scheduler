@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sparta.scheduler.Config.JwtProperties;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,7 @@ import java.util.Date;
 public class JwtUtil {
     private final JwtProperties jwtProperties;
     private final Key key;
+    private static final Logger logger = LogManager.getLogger(JwtUtil.class);
 
     public JwtUtil(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
@@ -47,12 +50,10 @@ public class JwtUtil {
     // 토큰의 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (Exception e) {
+            logger.error("Token validation error", e);
             return false;
         }
     }
