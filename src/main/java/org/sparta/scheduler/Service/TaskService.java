@@ -1,10 +1,13 @@
 package org.sparta.scheduler.Service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.sparta.scheduler.Domain.Task;
 import org.sparta.scheduler.Domain.User;
 import org.sparta.scheduler.Dto.TaskDTO;
 import org.sparta.scheduler.Exception.ResourceNotFoundException;
+import org.sparta.scheduler.Exception.TaskNotFoundException;
+import org.sparta.scheduler.Exception.UnauthorizedTaskAccessException;
 import org.sparta.scheduler.Repository.TaskRepository;
 import org.sparta.scheduler.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TaskService {
@@ -29,13 +30,13 @@ public class TaskService {
 
     public List<Task> getTasksByUser(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다." + username));
         return taskRepository.findAllByUserOrderByCreatedDateDesc(user);
     }
 
     public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElseThrow(()
-                -> new IllegalArgumentException("Invalid task ID: " + id));
+        return taskRepository.findById(id)
+            .orElseThrow(() -> new TaskNotFoundException("할일 카드를 찾을 수 없습니다." + id));
     }
 
     @Transactional
@@ -46,7 +47,7 @@ public class TaskService {
 
         // UserRepository를 사용하여 User 객체를 조회
         User user = userRepository.findByUsername(currentUserName)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + currentUserName));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다." + currentUserName));
 
         // TaskDTO와 User 객체를 사용하여 Task 객체 초기화
         Task task = new Task();
@@ -62,11 +63,11 @@ public class TaskService {
         String username = authentication.getName();
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found with id: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("할일 카드를 찾을 수 없습니다." + taskId));
 
         // 사용자 검증
         if (!task.getUser().getUsername().equals(username)) {
-            throw new IllegalArgumentException("You can only edit your own tasks.");
+            throw new UnauthorizedTaskAccessException("권한이 없습니다.");
         }
 
         task.setTitle(taskDTO.getTitle());
@@ -76,7 +77,7 @@ public class TaskService {
 
     public Task findById(Long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("할일 카드를 찾을 수 없습니다." + id));
     }
 
     public Task save(Task task) {

@@ -1,23 +1,23 @@
 package org.sparta.scheduler.Service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sparta.scheduler.Domain.Comment;
 import org.sparta.scheduler.Domain.Task;
 import org.sparta.scheduler.Domain.User;
 import org.sparta.scheduler.Dto.CommentDTO;
+import org.sparta.scheduler.Exception.CommentNotFoundException;
+import org.sparta.scheduler.Exception.TaskNotFoundException;
+import org.sparta.scheduler.Exception.UnauthorizedCommentAccessException;
 import org.sparta.scheduler.Repository.CommentRepository;
 import org.sparta.scheduler.Repository.TaskRepository;
 import org.sparta.scheduler.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
 
 @Service
 public class CommentService {
@@ -36,7 +36,7 @@ public class CommentService {
 
     public Comment addCommentToTask(Long taskId, String content) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found with id: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("할일 카드를 찾을 수 없습니다." + taskId));
 
         Comment comment = new Comment();
         comment.setTask(task);
@@ -56,11 +56,11 @@ public class CommentService {
 
     public Comment updateComment(Long commentId, String newContent, String username) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다. " + commentId));
 
         // 사용자 검증 로직 추가 (예시)
         if (!comment.getTask().getUser().getUsername().equals(username)) {
-            throw new IllegalArgumentException("Not authorized to update this comment");
+            throw new UnauthorizedCommentAccessException("권한이 없습니다.");
         }
 
         comment.setContent(newContent);
@@ -71,7 +71,7 @@ public class CommentService {
     @PreAuthorize("#username == authentication.principal.username")
     public void deleteComment(Long commentId, String username) throws AccessDeniedException {
         Comment comment = commentRepository.findByIdWithUser(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+            .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다."));
 
         logger.info("Deleting comment: {}, User: {}, Task: {}", comment.getId(), comment.getUser().getUsername(), comment.getTask().getId());
 
@@ -79,7 +79,7 @@ public class CommentService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You do not have permission to delete this comment");
+            throw new UnauthorizedCommentAccessException("권한이 없습니다.");
         }
 
 
@@ -91,7 +91,7 @@ public class CommentService {
 
         // 현재 요청한 사용자가 댓글을 작성한 사용자와 동일한지 확인
         if (!comment.getUser().getUsername().equals(username)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this comment");
+            throw new UnauthorizedCommentAccessException("권한이 없습니다.");
         }
 
         commentRepository.delete(comment);
