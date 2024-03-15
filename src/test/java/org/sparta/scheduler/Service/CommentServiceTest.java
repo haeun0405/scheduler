@@ -38,7 +38,7 @@ public class CommentServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private CommentService commentService;
+    private CommentServiceImpl commentService;
 
     private Task task;
     private User user;

@@ -33,7 +33,7 @@ public class UserServiceTest {
     private JwtUtil jwtUtil;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
@@ -42,9 +42,10 @@ public class UserServiceTest {
     @Test
     void registerUser_Success() {
         // Given
-        String username = "testUser";
-        String password = "Password123!";
+        String username = "testUser23123";
+        String password = "Password123";
         when(userRepository.existsByUsername(username)).thenReturn(false);
+
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
 
         // When

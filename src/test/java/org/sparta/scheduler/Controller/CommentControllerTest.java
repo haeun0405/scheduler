@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import org.sparta.scheduler.Domain.Comment;
 import org.sparta.scheduler.Dto.CommentDTO;
 import org.sparta.scheduler.SecurityConfig.TestSecurityConfig;
-import org.sparta.scheduler.Service.CommentService;
+import org.sparta.scheduler.Service.CommentServiceImpl;
 import org.sparta.scheduler.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,7 +26,7 @@ public class CommentControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private CommentService commentService;
+    private CommentServiceImpl commentService;
 
     @MockBean
     private JwtUtil jwtUtil;

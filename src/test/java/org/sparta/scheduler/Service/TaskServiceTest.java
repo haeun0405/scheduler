@@ -41,7 +41,7 @@ public class TaskServiceTest {
     private Authentication authentication;
 
     @InjectMocks
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
 
     @BeforeEach
     void setUp() {

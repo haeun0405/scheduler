@@ -9,8 +9,8 @@ import org.mockito.Mockito;
 import org.sparta.scheduler.Domain.Task;
 import org.sparta.scheduler.Dto.TaskDTO;
 import org.sparta.scheduler.SecurityConfig.TestSecurityConfig;
-import org.sparta.scheduler.Service.TaskService;
-import org.sparta.scheduler.Service.UserService;
+import org.sparta.scheduler.Service.TaskServiceImpl;
+import org.sparta.scheduler.Service.UserServiceImpl;
 import org.sparta.scheduler.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,10 +29,10 @@ public class TaskControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
 
     @MockBean
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @MockBean
     private JwtUtil jwtUtil;

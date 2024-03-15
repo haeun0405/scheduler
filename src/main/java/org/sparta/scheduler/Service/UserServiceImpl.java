@@ -54,6 +54,7 @@ public class UserServiceImpl implements AuthService {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, encodedPassword);
+
         userRepository.save(user);
     }
 
