@@ -1,87 +1,49 @@
 package org.sparta.scheduler.Service;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.sparta.scheduler.Domain.Task;
-import org.sparta.scheduler.Domain.User;
 import org.sparta.scheduler.Dto.TaskDTO;
-import org.sparta.scheduler.Exception.ResourceNotFoundException;
 import org.sparta.scheduler.Exception.TaskNotFoundException;
 import org.sparta.scheduler.Exception.UnauthorizedTaskAccessException;
-import org.sparta.scheduler.Repository.TaskRepository;
-import org.sparta.scheduler.Repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
-@Service
-public class TaskService {
+public interface TaskService {
+    /**
+     * 주어진 사용자 이름에 속한 모든 할일 카드를 조회합니다.
+     *
+     * @param username 사용자 이름
+     * @return 사용자에 속한 할일 카드 목록
+     * @throws UsernameNotFoundException 사용자를 찾을 수 없을 때 발생
+     */
+    List<Task> getTasksByUser(String username);
 
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
+    /**
+     * 주어진 ID에 해당하는 할일 카드를 조회합니다.
+     *
+     * @param id 할일 카드 ID
+     * @return 조회된 할일 카드
+     * @throws TaskNotFoundException 할일 카드를 찾을 수 없을 때 발생
+     */
+    Task getTaskById(Long id);
 
-    @Autowired
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
-        this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
-    }
+    /**
+     * 새로운 할일 카드를 생성합니다.
+     *
+     * @param taskDTO 할일 카드 생성 정보를 담은 DTO
+     * @return 생성된 할일 카드
+     * @throws UsernameNotFoundException 할일 카드를 생성하는 사용자를 찾을 수 없을 때 발생
+     */
+    Task createTask(TaskDTO taskDTO);
 
-    public List<Task> getTasksByUser(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다." + username));
-        return taskRepository.findAllByUserOrderByCreatedDateDesc(user);
-    }
-
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
-            .orElseThrow(() -> new TaskNotFoundException("할일 카드를 찾을 수 없습니다." + id));
-    }
-
-    @Transactional
-    public Task createTask(TaskDTO taskDTO) {
-        // 현재 인증된 사용자의 이름을 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserName = authentication.getName();
-
-        // UserRepository를 사용하여 User 객체를 조회
-        User user = userRepository.findByUsername(currentUserName)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다." + currentUserName));
-
-        // TaskDTO와 User 객체를 사용하여 Task 객체 초기화
-        Task task = new Task();
-        task.setTitle(taskDTO.getTitle());
-        task.setContents(taskDTO.getContents());
-        task.setAssignee(currentUserName);
-        task.setUser(user); // Task 엔티티와 User 엔티티 연결
-        return taskRepository.save(task);
-    }
-
-    public Task updateTask(Long taskId, TaskDTO taskDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("할일 카드를 찾을 수 없습니다." + taskId));
-
-        // 사용자 검증
-        if (!task.getUser().getUsername().equals(username)) {
-            throw new UnauthorizedTaskAccessException("권한이 없습니다.");
-        }
-
-        task.setTitle(taskDTO.getTitle());
-        task.setContents(taskDTO.getContents());
-        return taskRepository.save(task);
-    }
-
-    public Task findById(Long id) {
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("할일 카드를 찾을 수 없습니다." + id));
-    }
-
-    public Task save(Task task) {
-        return taskRepository.save(task);
-    }
+    /**
+     * 주어진 ID에 해당하는 할일 카드를 업데이트합니다.
+     *
+     * @param taskId 할일 카드 ID
+     * @param taskDTO 할일 카드 업데이트 정보를 담은 DTO
+     * @return 업데이트된 할일 카드
+     * @throws TaskNotFoundException 할일 카드를 찾을 수 없을 때 발생
+     * @throws UnauthorizedTaskAccessException 할일 카드를 업데이트할 권한이 없을 때 발생
+     */
+    Task updateTask(Long taskId, TaskDTO taskDTO);
 
 }

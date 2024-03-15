@@ -1,11 +1,13 @@
 package org.sparta.scheduler.Controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.sparta.scheduler.Domain.Task;
 import org.sparta.scheduler.Domain.User;
 import org.sparta.scheduler.Dto.TaskDTO;
 import org.sparta.scheduler.Dto.TaskResponseDTO;
-import org.sparta.scheduler.Service.TaskService;
-import org.sparta.scheduler.Service.UserService;
+import org.sparta.scheduler.Service.TaskServiceImpl;
+import org.sparta.scheduler.Service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +16,23 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
 
-    private final TaskService taskService;
-    private final UserService userService;
+    private final TaskServiceImpl taskService;
+    private final UserServiceImpl userService;
 
     @Autowired
-    public TaskController(TaskService taskService, UserService userService) {
+    public TaskController(TaskServiceImpl taskService, UserServiceImpl userService) {
         this.taskService = taskService;
         this.userService = userService;
     }
@@ -70,7 +75,7 @@ public class TaskController {
     // 할일카드 완료처리
     @PostMapping("/{taskId}/complete")
     public ResponseEntity<?> completeTask(@PathVariable Long taskId, @AuthenticationPrincipal UserDetails userDetails) {
-        // 토큰에서 사용자 정보 추출 (UserPrincipal는 예시, 실제 구현에 따라 달라질 수 있음)
+        // 토큰에서 사용자 정보 추출
         String username = userDetails.getUsername();
 
         User user = userService.findByUsername(username)

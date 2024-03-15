@@ -2,7 +2,7 @@ package org.sparta.scheduler.Controller;
 
 import org.sparta.scheduler.Domain.Comment;
 import org.sparta.scheduler.Dto.CommentDTO;
-import org.sparta.scheduler.Service.CommentService;
+import org.sparta.scheduler.Service.CommentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,10 +15,10 @@ import java.nio.file.AccessDeniedException;
 @RequestMapping("/api/tasks/{taskId}/comments")
 public class CommentController {
 
-    private final CommentService commentService;
+    private final CommentServiceImpl commentService;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentServiceImpl commentService) {
         this.commentService = commentService;
     }
 
